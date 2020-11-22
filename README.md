@@ -1,4 +1,4 @@
-Ansible Role: OpenMPI
+Ansible Role: HDF5
 =====================
 
 [//]: <> (Comment)
