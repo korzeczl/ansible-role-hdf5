@@ -61,14 +61,14 @@
       with_items:
         - "-DCMAKE_MAKE_PROGRAM:STRING={{ hdf5_make_program }}"
         - "{% if 'make' in hdf5_make_program %}-GUnix Makefiles{% elif 'ninja' in hdf5_make_program %}-GNinja{% else %}Undefined{% endif %}"
-  when: hdf5_cmake_args_auto|bool == True
+  when: hdf5_cmake_args_auto|bool
 
 - name: Define module_home variable if not previously defined
   set_fact:
     modules_home: "{{ modules_home | default( '/etc/modulefiles' ) }}"
-  when: hdf5_module|bool == True
+  when: hdf5_module|bool
 
 - name: Define hdf5_module_dir variable
   set_fact:
     hdf5_module_dir: "{{ modules_home }}/hdf5/"
-  when: hdf5_module|bool == True
+  when: hdf5_module|bool

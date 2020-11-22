@@ -13,7 +13,7 @@
 
 - name: "Create a module for {{ role_name | upper }}"
   include_tasks: modulefile.yml
-  when: hdf5_module|bool == True
+  when: hdf5_module|bool
 
 - name: include info.yml
   include_tasks: info.yml

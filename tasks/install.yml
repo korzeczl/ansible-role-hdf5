@@ -41,7 +41,7 @@
 - name: Install HDF5
   command: " {{ _item }} "
   args:
-    chdir: "{{ hdf5_build_path}}"
+    chdir: "{{ hdf5_build_path }}"
   with_items:
     - "cmake3  {{ hdf5_cmake_args | join(' ') }} {{ hdf5_source_dir.dest }}/hdf5-{{ hdf5_version }}"
     - "{{ hdf5_make_program }} -j {{ hdf5_make_jobs }}"

@@ -25,7 +25,7 @@
     msg:
       - "Module for {{ role_name }} is set to True but 'environment-modules' is not installed"
       - "Please install environment-modules or deactivate {{ role_name }} module creation"
-  when: ansible_facts.packages['environment-modules'] is not defined and hdf5_module|bool == True
+  when: ansible_facts.packages['environment-modules'] is not defined and hdf5_module|bool
 
 - name: Check if build is needed
   block:

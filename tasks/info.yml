@@ -20,6 +20,6 @@
 
   - name: Print to console
     debug:
-      msg: "{{command_output.stdout}}"
+      msg: "{{ command_output.stdout }}"
 
-  when: hdf5_verbose|bool == True
+  when: hdf5_verbose|bool
