@@ -1,0 +1,19 @@
+---
+# main tasks file for hdf5
+
+- name: Setting hdf5 facts
+  include_tasks: pre.yml
+
+- name: Prerequisities check
+  include_tasks: assert.yml
+
+- name: "Install {{ role_name | upper }} version {{ hdf5_version }}"
+  include_tasks: install.yml
+  when: hdf5_build_needed is defined
+
+- name: "Create a module for {{ role_name | upper }}"
+  include_tasks: modulefile.yml
+  when: hdf5_module|bool == True
+
+- name: include info.yml
+  include_tasks: info.yml

@@ -1,0 +1,74 @@
+---
+# Settings some facts for hdf5
+
+- name: Define required directories
+  set_fact:
+    build_dir: "{{ build_dir | default( '/tmp/build' ) }}"
+    download_dir: "{{ download_dir | default( '/tmp/download' ) }}"
+    modules_home: "{{ modules_home | default( '/etc/modulefiles' ) }}"
+
+- name: Decompose version
+  set_fact:
+    hdf5_major_version: "{{ hdf5_version.split('.')[0] }}"
+    hdf5_micro_version: "{{ hdf5_version.split('.')[1] }}"
+    hdf5_minor_version: "{{ hdf5_version.split('.')[2] }}"
+
+- name: Define download, checksum urls
+  set_fact:
+    hdf5_source_url: "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-{{ hdf5_major_version }}.{{ hdf5_micro_version }}/hdf5-{{ hdf5_version }}/src/hdf5-{{ hdf5_version }}.tar.gz"
+    hdf5_source_md5_checksum_file: "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-{{ hdf5_major_version }}.{{ hdf5_micro_version }}/hdf5-{{ hdf5_version }}/src/hdf5-{{ hdf5_version }}.md5"
+
+- name: Set hdf5 paths
+  set_fact:
+    hdf5_build_path: "{{ build_dir }}/{{ role_name }}/{{ hdf5_version }}"
+    hdf5_download_path: "{{ download_dir }}/{{ role_name }}/{{ hdf5_version }}"
+
+- name: Define hdf5 install directory
+  set_fact:
+    hdf5_install_dir: "{{ hdf5_install_dir | default( ['/opt', 'HDF_Group', role_name, [ [hdf5_version, gcc_version] | join('-gcc'), openmpi_version ] | join('-ompi') ] | join('/') ) }}"
+
+- name: Define number of jobs for the build process
+  set_fact:
+    hdf5_make_jobs: "{{ hdf5_make_jobs | default(4) }}"
+
+- name: Automatic cmake arguments
+  set_fact:
+    hdf5_cmake_args_auto: "{% if hdf5_cmake_args is not defined %}True{% else %}False{% endif %}"
+
+- name: "Set cmake arguments"
+  block:
+    - name: Set fact hdf5_cmake_args
+      set_fact:
+        hdf5_cmake_args:
+          - -DCMAKE_INSTALL_PREFIX:STRING={{ hdf5_install_dir }}
+          - -DCMAKE_C_COMPILER:STRING={{ CC }}
+          - -DCMAKE_CXX_COMPILER:STRING={{ CXX }}
+
+    - name: Enable fortran
+      set_fact:
+        hdf5_cmake_args: "{{ hdf5_cmake_args + [_item] }}"
+      loop_control:
+        loop_var: _item
+      with_items:
+        - "-DCMAKE_Fortran_COMPILER:STRING={{ F90 }}"
+        - "-DHDF5_BUILD_FORTRAN:BOOL={% if hdf5_enable_fortran %}ON{% else %}OFF{% endif %}"
+
+    - name: Add make program
+      set_fact:
+        hdf5_cmake_args: "{{ hdf5_cmake_args + [_item] }}"
+      loop_control:
+        loop_var: _item
+      with_items:
+        - "-DCMAKE_MAKE_PROGRAM:STRING={{ hdf5_make_program }}"
+        - "{% if 'make' in hdf5_make_program %}-GUnix Makefiles{% elif 'ninja' in hdf5_make_program %}-GNinja{% else %}Undefined{% endif %}"
+  when: hdf5_cmake_args_auto|bool == True
+
+- name: Define module_home variable if not previously defined
+  set_fact:
+    modules_home: "{{ modules_home | default( '/etc/modulefiles' ) }}"
+  when: hdf5_module|bool == True
+
+- name: Define hdf5_module_dir variable
+  set_fact:
+    hdf5_module_dir: "{{ modules_home }}/hdf5/"
+  when: hdf5_module|bool == True

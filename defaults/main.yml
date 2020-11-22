@@ -1,0 +1,8 @@
+---
+# defaults file for hdf5
+
+hdf5_version: 1.12.0
+hdf5_module: false
+hdf5_verbose: false
+hdf5_make_program: make
+hdf5_enable_fortran: false

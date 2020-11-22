@@ -1,0 +1,53 @@
+---
+# assertion for hdf5
+
+- name: Test gcc compiler is defined
+  fail:
+    msg: "Please set 'gcc_version'"
+  when: gcc_version is not defined
+
+- name: Check if make program has been defined
+  fail:
+    msg: "Please set 'hdf5_make_program' to to 'make' or 'ninja'"
+  when: hdf5_make_program is not defined
+
+- name: Check make program is installed on the system
+  shell: '{{ hdf5_make_program }}'
+  register: hdf5_make_program_stat
+  failed_when: "'command not found' in hdf5_make_program_stat.stderr"
+
+- name: get the rpm or apt package facts
+  package_facts:
+    manager: "auto"
+
+- name: Check if environment-modules is installed on the system
+  fail:
+    msg:
+      - "Module for {{ role_name }} is set to True but 'environment-modules' is not installed"
+      - "Please install environment-modules or deactivate {{ role_name }} module creation"
+  when: ansible_facts.packages['environment-modules'] is not defined and hdf5_module|bool == True
+
+- name: Check if build is needed
+  block:
+
+    - name: Set path to requested hdf5 executable
+      set_fact:
+        _hdf5_executable: "{{ hdf5_install_dir }}/bin/h5cc"
+
+    - name: Check that requested hdf5 exists
+      stat:
+        path: "{{ _hdf5_executable }}"
+      register: stat_hdf5
+
+    - name: Get gcc version
+      command: "{{ _hdf5_executable }} -dumpversion"
+      register: hdf5_gcc_version
+      when: stat_hdf5.stat.exists
+
+    - name: Check if build is needed
+      set_fact:
+        hdf5_build_needed: "True"
+      when:
+        - "not stat_hdf5.stat.exists or
+          (hdf5_gcc_version.stdout_lines is defined  and  (hdf5_gcc_version.stdout_lines[-1] != gcc_version) | bool)"
+      #todo: Add cmake options comparison for hdf5 source and target

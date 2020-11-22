@@ -1,0 +1,21 @@
+---
+# modulefile for hdf5
+
+- name: Creates hdf5 directories if not exists
+  file:
+    path: "{{ hdf5_module_dir }}"
+    state: directory
+
+- name: Add modulefile for hdf5
+  template:
+    src: "{{ _item  }}"
+    dest: "{{ hdf5_module_dir }}/{{ _item  | regex_replace('module.j2', hdf5_version ) }}"
+  loop_control:
+    loop_var: _item
+  with_items:
+    - "module.j2"
+  vars:
+    pkg_home: "{{ hdf5_install_dir }}"
+    pkg_name: "{{ role_name }}"
+    pkg_ver: "{{ hdf5_version }}"
+    pkg_compiler: "gcc-{{ gcc_version }}"

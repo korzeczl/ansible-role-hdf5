@@ -1,0 +1,60 @@
+---
+# install tasks file for hdf5
+
+# Installing
+- name: Creates hdf5 directories if not exists
+  file:
+    path: "{{ _item }}"
+    state: directory
+  with_items:
+    - "{{ hdf5_build_path }}"
+    - "{{ hdf5_download_path }}"
+    - "{{ hdf5_install_dir }}"
+  loop_control:
+    loop_var: _item
+
+- name: Download HDF5 sources checksum
+  get_url:
+    url: "{{ hdf5_source_md5_checksum_file }}"
+    dest: "{{ download_dir }}"
+  register: downloaded_hdf5_source_md5_checksum_file
+
+- name: Retrieve checksum
+  shell: awk '/ hdf5-{{ hdf5_version }}.tar.gz/ {print $1}' < {{ downloaded_hdf5_source_md5_checksum_file.dest }}
+  register: hdf5_source_md5_checksum
+
+- name: Download HDF5 sources
+  get_url:
+    url: "{{ hdf5_source_url }}"
+    dest: "{{ download_dir }}"
+    checksum: "md5:{{ hdf5_source_md5_checksum.stdout }}"
+  register: hdf5_source_archive
+
+- name: Unarchive file
+  unarchive:
+    src: "{{ hdf5_source_archive.dest }}"
+    dest: "{{ hdf5_download_path }}"
+    remote_src: yes
+  register: hdf5_source_dir
+
+# Installing
+- name: Install HDF5
+  command: " {{ _item }} "
+  args:
+    chdir: "{{ hdf5_build_path}}"
+  with_items:
+    - "cmake3  {{ hdf5_cmake_args | join(' ') }} {{ hdf5_source_dir.dest }}/hdf5-{{ hdf5_version }}"
+    - "{{ hdf5_make_program }} -j {{ hdf5_make_jobs }}"
+    - "{{ hdf5_make_program }} install"
+  loop_control:
+    loop_var: _item
+  environment:
+    LD_LIBRARY_PATH: "{{ GCC_LD }}"
+
+- name: Cleaning
+  file:
+    state: absent
+    path: "{{ item }}/"
+  with_items:
+    - "{{ hdf5_build_path }}"
+    - "{{ hdf5_download_path }}"

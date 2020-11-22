@@ -1,0 +1,8 @@
+hdf5_download_path: "{{ hdf5_download_path }}"
+hdf5_build_path: "{{ hdf5_build_path }}"
+hdf5_module_dir: "{{ hdf5_module_dir }}"
+
+hdf5_cmake_args:
+{% for i in hdf5_cmake_args %}
+ {{ i }}
+{% endfor %}
