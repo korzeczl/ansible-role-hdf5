@@ -12,7 +12,7 @@
   when: hdf5_make_program is not defined
 
 - name: Check make program is installed on the system
-  shell: '{{ hdf5_make_program }}'
+  command: '{{ hdf5_make_program }}'
   register: hdf5_make_program_stat
   failed_when: "'command not found' in hdf5_make_program_stat.stderr"
 

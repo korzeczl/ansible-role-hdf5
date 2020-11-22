@@ -15,8 +15,10 @@
 
 - name: Define download, checksum urls
   set_fact:
-    hdf5_source_url: "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-{{ hdf5_major_version }}.{{ hdf5_micro_version }}/hdf5-{{ hdf5_version }}/src/hdf5-{{ hdf5_version }}.tar.gz"
-    hdf5_source_md5_checksum_file: "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-{{ hdf5_major_version }}.{{ hdf5_micro_version }}/hdf5-{{ hdf5_version }}/src/hdf5-{{ hdf5_version }}.md5"
+    hdf5_source_url: "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-{{ hdf5_major_version }}.{{ hdf5_micro_version }}/hdf5-{{ hdf5_version }}\
+    /src/hdf5-{{ hdf5_version }}.tar.gz"
+    hdf5_source_md5_checksum_file: "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-{{ hdf5_major_version }}.{{ hdf5_micro_version }}/hdf5-\
+    {{ hdf5_version }}/src/hdf5-{{ hdf5_version }}.md5"
 
 - name: Set hdf5 paths
   set_fact:
@@ -25,7 +27,8 @@
 
 - name: Define hdf5 install directory
   set_fact:
-    hdf5_install_dir: "{{ hdf5_install_dir | default( ['/opt', 'HDF_Group', role_name, [ [hdf5_version, gcc_version] | join('-gcc'), openmpi_version ] | join('-ompi') ] | join('/') ) }}"
+    hdf5_install_dir: "{{ hdf5_install_dir | default( ['/opt', 'HDF_Group', role_name, [ [hdf5_version, gcc_version] | join('-gcc'), openmpi_version ]\
+     | join('-ompi') ] | join('/') ) }}"
 
 - name: Define number of jobs for the build process
   set_fact:

@@ -4,7 +4,7 @@
 - name: Write summary to install directory
   template:
     src: "{{ _item  }}"
-    dest: "{{ hdf5_install_dir}}/{{ _item  | regex_replace('summary.j2', 'ansible_summary.txt' ) }}"
+    dest: "{{ hdf5_install_dir }}/{{ _item  | regex_replace('summary.j2', 'ansible_summary.txt' ) }}"
   loop_control:
     loop_var: _item
   with_items:
